@@ -86,6 +86,34 @@ server.delete('/api/users/:id', (req, res) => {
     });
 });
 
+server.put('/api/users/:id', (req, res) => {
+  const user = req.body
+  const { id } = req.params
+  if (user.name && user.bio) {
+    db.update(id, user).then(count => {
+      if (count) {
+        // 200 successfully updated (send back our updated user)
+        db.findById(id).then(user => {
+          res.json(user);
+        })
+      } else {
+        // 404 invalid id
+        res.status(404)
+          .json({ message: 'invalid id' })
+      }
+    })
+    .catch(err => {
+      // 500 something else went wrong
+      res.status(500)
+        .json({ message: "failed to update user" })
+    })
+  } else {
+    //400 name or bio is missing
+    res.status(400)
+      .json({ message: "missing name or bio "})
+  }
+})
+
 //express method get
 /* server.get('/greet', (req, res) => {
   //res send can send strings, objects
